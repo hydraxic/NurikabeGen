@@ -3,5 +3,9 @@ Run it on Colab: https://colab.research.google.com/drive/1MrEk5eZIq0KZ5Pb2qUhuBh
 Also generates a printable PDF to view the puzzles.
 
 Example of generated puzzles:
+
+
 ![image](https://github.com/user-attachments/assets/d2b84167-fa8c-449c-8d4b-b9cdd2694f25)
+
+
 ![image](https://github.com/user-attachments/assets/d772122d-7086-495e-8713-34ff804f92d0)
