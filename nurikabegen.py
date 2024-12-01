@@ -163,6 +163,18 @@ def all_water_connected(grid):
 
     return True;
 
+def max_island_size(grid, isize):
+    visited = [[False for _ in range(len(grid[0]))] for _ in range(len(grid))]
+
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if grid[i][j] > 0 and not visited[i][j]: # if the cell is a numbered cell and not visited
+                count = flood_fill_island_count(grid, i, j, visited, 0, None);
+                if count > isize: # if the count of cells in island is not equal to the number on the cell
+                    return False;
+    
+    return True;
+
 def correct_island_size(grid):
     visited = [[False for _ in range(len(grid[0]))] for _ in range(len(grid))]
 
@@ -274,6 +286,10 @@ def solve_nurikabe(grid):
         number_position_pairs.append((random.choice(cell_positions), count));
         for cell in cell_positions:
             all_island_cells.remove(cell);
+    
+    # replace the numbered cells with the number of cells that make up the island
+    for (cell, number) in number_position_pairs:
+        grid[cell[0]][cell[1]] = number;
 
     # print grid in formatted way
     for i in range(len(grid)):
@@ -330,11 +346,12 @@ def generate_rows(index, generated_rows, pattern, sizex, sizey):
 
 def generate_random_rows(index, generated_rows, pattern, sizex, sizey):
     if index < sizex:
-        pattern[index] = random.randint(-1, 0)
-        generate_random_rows(index + 1, generated_rows, pattern, sizex, sizey)
-
-        pattern[index] = random.randint(-1, 0)
-        generate_random_rows(index + 1, generated_rows, pattern, sizex, sizey)
+        # Randomize choices for each cell
+        options = [-1, 0]
+        random.shuffle(options)
+        for choice in options:
+            pattern[index] = choice
+            generate_random_rows(index + 1, generated_rows, pattern, sizex, sizey)
     else:
         final_pattern = pattern.copy()
         if final_pattern not in generated_rows:
@@ -376,20 +393,43 @@ def generate_water_pattern2(index, pattern, generated_rows, pattern_count, recur
 
 def generate_water_pattern(index, pattern, generated_rows, pattern_count, recursive_calls, pattern_check, sizex, sizey):
     if index == sizey:
-        # Validate the final pattern before adding it to the matrix_list
+        # Validate the final pattern before adding it
         if all_water_connected(pattern) and not has_pool(pattern):
-            matrix_list.append([row.copy() for row in pattern])  # Add a deep copy of the pattern
+            matrix_list.append([row.copy() for row in pattern])
         return
-    random.shuffle(generated_rows)
+
+    # Randomize the order in which rows are tried
+    #random.shuffle(generated_rows)
     for row in generated_rows:
         pattern[index] = row
+        #print(pattern, index)
         if index > 0:
-            # Validate partial patterns only if they connect properly
-            partial_valid = all_water_connected(pattern) and not has_pool(pattern)
-            if not partial_valid:
-                continue  # Skip invalid partial patterns
+            # Validate the partial pattern at this step
+            if not (all_water_connected(pattern) and not has_pool(pattern)):
+                continue  # Skip invalid patterns
 
         generate_water_pattern(index + 1, pattern, generated_rows, pattern_count, recursive_calls, pattern_check, sizex, sizey)
+
+def generate_random_water_pattern(index, pattern, generated_rows, pattern_count, recursive_calls, pattern_check, sizex, sizey):
+    if index == sizey:
+        # Validate the final pattern before adding it
+        if all_water_connected(pattern) and not has_pool(pattern):
+            matrix_list.append([row.copy() for row in pattern])
+        return
+    
+    # grab 10 random rows from generated_rows
+    random_rows = random.sample(generated_rows, 10)
+    for row in random_rows:
+        pattern[index] = row
+        print(pattern, index)
+        if index > 0:
+            # Validate the partial pattern at this step
+            if not (all_water_connected(pattern) and not has_pool(pattern)):
+                continue
+
+        generate_random_water_pattern(index + 1, pattern, generated_rows, pattern_count, recursive_calls, pattern_check, sizex, sizey)
+
+
 
 def print_grid(grid):
     for row in grid:
@@ -419,49 +459,41 @@ def grow_island(grid, x, y, size):
                 if size == 1:
                     break
 
-
 if __name__ == "__main__":
-    # Customize grid size and island count
-    grid_size_x = 5
-    grid_size_y = 7
-    max_islands = 5
-    max_island_size = 3
-
+    # Customize grid size and number of puzzles
     sizex = 5
     sizey = 5
     amount = 10
     generated_rows = []
     matrix_list = []
     pattern = [0] * sizex
-    patternLast = []
+    patternLast = [[0] * sizex for _ in range(sizey)]
 
-    puzzle = [
-        [0, 2, -1, -1, -1], #   2 - - -
-        [-1, -1, 1, -1, 2], # - - 1 - 2
-        [0, -1, -1, -1, 0], #   - - -   
-        [2, -1, 2, -1, -1], # 2 - 2 - -
-        [-1, -1, 0, -1, 1], # - -   - 1
-    ]
-    
-    #print(is_valid_nurikabe(puzzle))
-
-    for i in range(sizey):
-        patternLast.append([0] * sizex)
+    # Generate initial random rows
     generated_rows = generate_random_rows(0, generated_rows, pattern, sizex, sizey)
-    #print(generated_rows)
-    while len(generated_rows) < amount:
-        generated_rows = generate_random_rows(0, generated_rows, pattern, sizex, sizey)
+    #while len(generated_rows) < amount:
+    #    generated_rows = generate_random_rows(0, generated_rows, pattern, sizex, sizey)
     for i in range(len(generated_rows) - amount):
         generated_rows.pop()
-    print(generated_rows)
-    generate_water_pattern(0, patternLast, generated_rows, 0, 0, True, sizex, sizey)
-    #print(matrix_list)
-    
-    #for grid in matrix_list:
-    #    solve_nurikabe(grid)
 
+    print(generated_rows)
+
+    # Generate diverse water patterns
+    generate_water_pattern(0, patternLast, generated_rows, 0, 0, True, sizex, sizey)
+
+    # Output the results
+    print(f"Generated {len(matrix_list)} puzzles.")
+    #for grid in matrix_list:
+    #    for row in grid:
+    #        print(row)
+    #    print()
+
+    # Optionally solve the generated puzzles
     for i in range(10):
         solve_nurikabe(random.choice(matrix_list))
 
-    #puzzle = generate_nurikabe(grid_size_x, grid_size_y, max_islands, max_island_size)
-    #print_grid(puzzle)
+
+'''
+planning:
+generate every possible nurikabe, put it into a file, then when need it just pull from that
+'''
