@@ -2,6 +2,8 @@ Generator for Nurikabe puzzles. Generates both the puzzle and solution, and also
 Run it on Colab: https://colab.research.google.com/drive/1MrEk5eZIq0KZ5Pb2qUhuBhrxBzcmfWJU?usp=sharing
 Also generates a printable PDF to view the puzzles.
 
+Can watch demo here: https://www.youtube.com/watch?v=jeQfuWQXpWY
+
 Example of generated puzzles:
 
 
