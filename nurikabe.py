@@ -1066,14 +1066,16 @@ def main():
     else:
         full_puzzles = []
         with open('/content/unique_nurikabes_5x5.json', 'r') as g:
-            full_puzzles = json.load(g)
-        with open('/content/unique_nurikabes_5x5.json', 'a') as f:
+            loadtemp = json.load(g)
+            for grid in loadtemp:
+                full_puzzles.append(grid)
+        with open('/content/unique_nurikabes_5x5.json', 'w') as f:
             puzzle_array = []
             for i in range(given_solution.shape[0]):
                 temparray = []
                 for j in range(given_solution.shape[1]):
                     temparray.append(given_solution[i, j])
-                puzzle_array.append(temparray)
+                puzzle_array.append(temparray)  
             full_puzzles.append(puzzle_array)
             json.dump(full_puzzles, f, cls = NumpyEncoder)
         logging.info("Puzzle has unique solution.")
