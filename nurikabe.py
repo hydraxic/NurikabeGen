@@ -1070,8 +1070,10 @@ def main():
         with open('/content/unique_nurikabes_5x5.json', 'a') as f:
             puzzle_array = []
             for i in range(given_solution.shape[0]):
+                temparray = []
                 for j in range(given_solution.shape[1]):
-                    puzzle_array.append(given_solution[i, j])
+                    temparray.append(given_solution[i, j])
+                puzzle_array.append(temparray)
             full_puzzles.append(puzzle_array)
             json.dump(full_puzzles, f, cls = NumpyEncoder)
         logging.info("Puzzle has unique solution.")
